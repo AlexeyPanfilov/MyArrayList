@@ -2,25 +2,57 @@ package org.example;
 
 import java.util.*;
 
-/**Реализация динамического массива, версия Панфилова А., для хранения и манипуляции данными
- * Данная реализация не потокобезопасна, так что в случае использования её в многопоточной среде,
+/**
+ * Реализация динамического массива для хранения и манипуляции данными (объектами).
+ * <p>Содержит базовые методы {@code add}, {@code size}, {@code isEmpty}, {@code contains}, {@code remove},
+ * {@code clear}, {@code get}, {@code set}, {@code indexOf}, {@code trimToSize}.
+ * При инициализации объект данной коллекции представляет собой массив минимальной вместимости. В случае, если при добавлении
+ * элементов требуется вместимость больше, она увеличивается автоматически. При удалении элементов, вместимость не уменьшается,
+ * однако её можно уменьшить методом {@code trimToSize}.
+ * <p><strong>Данная реализация не потокобезопасна</strong>, так что в случае использования её в многопоточной среде,
  * если планируется доступ к ней одновременно нескольких потоков для модификации, разработчику необходимо
- * дополнительно синхронизировать используемые методы.*/
+ * дополнительно синхронизировать используемые методы.
+ *
+ * @param <T> тип элемента, используемого в данной коллекции
+ * @author Алексей Панфилов
+ * @version 0.8
+ */
 
 public class PanfArrList<T> {
 
+    /**
+     * Размер массива при создании списка, а также минимально возможный его размер после удаления элементов и выполнения {@code trimToSize}
+     */
     private static final int DEFAULT_CAPACITY = 10;
 
+    /**
+     * Данная переменная используется внутри класса для изменения вместимости при превышении размера текущего массива
+     */
     private int currentCapacity = DEFAULT_CAPACITY;
 
+    /**
+     * Массив, используемый для хранения элементов коллекции. Вместимость данного списка это размер
+     * массива {@code listOfObjects}. При необходимости его размер увеличивается автоматически
+     */
     private Object[] listOfobjects;
 
+    /**
+     * Размер списка (количество хранимых в нем элементов). При создании == 0, при добавлении элементов инкрементируется,
+     * при удалении - декрементируется. При удалении всех элементов сбрасывается в 0
+     */
     private int size = 0;
 
+    /**
+     * Создает пустой список с вместимостью по умолчанию == {@code DEFAULT_CAPACITY}
+     */
     public PanfArrList() {
         this.listOfobjects = (T[]) new Object[DEFAULT_CAPACITY];
     }
 
+
+    /**
+     * Добавляет элемент в конец списка. Тип элемента должен соответствовать типу списка, указанному при его создании
+     */
     public boolean add(T t) {
         if (size >= currentCapacity) {
             this.grow();
@@ -30,18 +62,31 @@ public class PanfArrList<T> {
         return true;
     }
 
+    /**
+     * Метод для внутреннего использования библиотекой. Увеличивает вместимость списка на 10 при достижении текущего предела
+     */
     private Object[] grow() {
         return listOfobjects = Arrays.copyOf(listOfobjects, currentCapacity = this.size + 10);
     }
 
+    /**
+     * Возвращает размер списка, т.е количество хранящихся в нем элементов в текущий момент
+     */
     public int size() {
         return size;
     }
 
+    /**
+     * Возвращает состояние списка: пустой или нет (т.е. не содержит ни одного элемента)
+     */
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Метод, позволяющий проверить, содержится ли в списке указанный в параметрах элемент (т.е. встречается в
+     * нем хотя бы 1 раз). Возвращает true при первом же совпадении.
+     */
     public boolean contains(Object o) {
         for (Object obj : listOfobjects) {
             if (o.equals(obj)) {
@@ -51,6 +96,10 @@ public class PanfArrList<T> {
         return false;
     }
 
+    /**
+     * Удаляет объект из списка по equals. Если объект не найден - операция не выполняется, возвращает false.
+     * Работает в комбинации с методом {@code indexOf}, находя индекс элемента и вызывая метод {@code remove(index)}
+     */
     public boolean remove(Object o) {
         if (indexOf(o) >= 0) {
             remove(indexOf(o));
@@ -60,6 +109,9 @@ public class PanfArrList<T> {
         }
     }
 
+    /**
+     * Удаляет все элементы из списка. При этом вместимость списка не уменьшается.
+     */
     public void clear() {
         for (int i = 0; i < size; i++) {
             listOfobjects[i] = null;
@@ -67,25 +119,47 @@ public class PanfArrList<T> {
         size = 0;
     }
 
+    /**
+     * Возвращает элемент из списка, находя его в массиве по индексу. Если передано некорректное значение индекса,
+     * может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException
+     */
     public T get(int index) {
+        if (index > this.size) {
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for size " + size);
+        }
         return (T) listOfobjects[index];
     }
 
+    /**
+     * Меняет значение элемента, находящееся по переданному индексу. Возвращает значение оригинального элемента (до изменения).
+     * Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе
+     */
     public T set(int index, T element) {
-        if (index < size) {
-            listOfobjects[index] = element;
+        if (index > this.size) {
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for size " + size);
         }
-        return null;
-    }
-
-    public void add(int index, T element) {
-        for (int i = this.size; i > index; i--) {
-            listOfobjects[i] = listOfobjects[i - 1];
-        }
+        T previousElement = (T) listOfobjects[index];
         listOfobjects[index] = element;
-        size++;
+        return previousElement;
     }
 
+    /**Добавляет элемент в список по индексу, при этом сдвигая остальные элементы вправо. Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе
+     */
+    public void add(int index, T element) {
+        if (index > this.size) {
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for size " + size);
+        } else if (index == size) {
+            this.add(element);
+        } else {
+            for (int i = this.size; i > index; i--) {
+                listOfobjects[i] = listOfobjects[i - 1];
+            }
+            listOfobjects[index] = element;
+            size++;
+        }
+    }
+
+    /**Удаляет элемент по индексу. При этом остальные элементы сдвигаются влево, если удаляется не последний элемент. Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе*/
     public T remove(int index) {
         T valueToRemove = this.get(index);
         listOfobjects[index] = null;
@@ -97,6 +171,7 @@ public class PanfArrList<T> {
         return valueToRemove;
     }
 
+    /**Возвращает индекс элемента по equals содержимого ячейки. В случае если такой объект в списке отсутствует, возвращает -1*/
     public int indexOf(Object o) {
         for (int i = 0; i < this.size - 1; i++) {
             if (listOfobjects[i].equals(o)) {
@@ -106,6 +181,8 @@ public class PanfArrList<T> {
         return -1;
     }
 
+    /**Обрезает массив дня хранения элементов по размеру списка (количеству содержащихся в нем элементов).
+     * При этом минимальный размер внутреннего массива не может быть меньше {@code DEFAULT_CAPACITY}*/
     public void trimToSize() {
         if (listOfobjects.length > this.size && this.size > DEFAULT_CAPACITY) {
             listOfobjects = Arrays.copyOf(listOfobjects, this.size);
@@ -128,6 +205,7 @@ public class PanfArrList<T> {
         return sb.toString();
     }
 
+    /**Сервисный метод для тестирования некоторых методов, позже удалю после отладки*/
     public String printList() {
         StringBuilder sb = new StringBuilder();
         sb.append("[");

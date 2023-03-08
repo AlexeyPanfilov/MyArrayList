@@ -1,16 +1,17 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        ArrayList<String> list = new ArrayList<>();
         PanfArrList<String> panfArrList = new PanfArrList<>();
         System.out.println("size at the start = " + panfArrList.size());
         System.out.println("isempty? " + panfArrList.isEmpty());
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < 10; i++) {
             panfArrList.add("One " + i);
         }
+        panfArrList.add(10, "fdfdf");
         System.out.println("size = " + panfArrList.size());
         System.out.println(panfArrList);
         System.out.println(panfArrList.contains("One 2"));
@@ -30,6 +31,7 @@ public class Main {
         System.out.println("size = " + panfArrList.size());
 //        System.out.println(list.indexOf("dkdr"));
         System.out.println(panfArrList.printList());
+        System.out.println(panfArrList.get(-1));
         panfArrList.trimToSize();
         System.out.println(panfArrList.printList());
     }
