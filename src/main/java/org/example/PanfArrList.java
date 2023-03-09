@@ -36,6 +36,9 @@ public class PanfArrList<T> {
      */
     private Object[] listOfobjects;
 
+    /**Пустая коллекция для создания пустых коллекций и снижения вероятности появления NullPointerException*/
+    private static final Object[] EMPTY_LIST = {};
+
     /**
      * Размер списка (количество хранимых в нем элементов). При создании == 0, при добавлении элементов инкрементируется,
      * при удалении - декрементируется. При удалении всех элементов сбрасывается в 0
@@ -47,6 +50,18 @@ public class PanfArrList<T> {
      */
     public PanfArrList() {
         this.listOfobjects = (T[]) new Object[DEFAULT_CAPACITY];
+    }
+
+    /**Создает пустой список с заданной вместимостью. При этом вместимость не может быть меньше {@code DEFAULT_CAPACITY}*/
+    public PanfArrList(int capacity) {
+        if (capacity > 0) {
+            this.listOfobjects = (T[]) new Object[capacity];
+            this.currentCapacity = capacity;
+        } else if (capacity < 0) {
+            throw new IllegalArgumentException("Illegal capacity " + capacity);
+        } else {
+            this.listOfobjects = EMPTY_LIST;
+        }
     }
 
 
@@ -119,12 +134,17 @@ public class PanfArrList<T> {
         size = 0;
     }
 
+    /**Полностью удаляет список и возвращает пустую коллекцию*/
+    public void clearTotal() {
+        listOfobjects = EMPTY_LIST;
+    }
+
     /**
      * Возвращает элемент из списка, находя его в массиве по индексу. Если передано некорректное значение индекса,
      * может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException
      */
     public T get(int index) {
-        if (index > this.size) {
+        if (index >= this.size) {
             throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for size " + size);
         }
         return (T) listOfobjects[index];
@@ -152,6 +172,9 @@ public class PanfArrList<T> {
             this.add(element);
         } else {
             for (int i = this.size; i > index; i--) {
+                if (this.size >= this.currentCapacity) {
+                    this.grow();
+                }
                 listOfobjects[i] = listOfobjects[i - 1];
             }
             listOfobjects[index] = element;
@@ -163,17 +186,19 @@ public class PanfArrList<T> {
     public T remove(int index) {
         T valueToRemove = this.get(index);
         listOfobjects[index] = null;
-        for (int i = index; i < this.size - 1; i++) {
-            listOfobjects[i] = listOfobjects[i + 1];
+        if (index < size - 1) {
+            for (int i = index; i < this.size - 2; i++) {
+                listOfobjects[i] = listOfobjects[i + 1];
+            }
+            listOfobjects[size - 1] = null;
         }
         size--;
-        listOfobjects[size] = null;
         return valueToRemove;
     }
 
     /**Возвращает индекс элемента по equals содержимого ячейки. В случае если такой объект в списке отсутствует, возвращает -1*/
     public int indexOf(Object o) {
-        for (int i = 0; i < this.size - 1; i++) {
+        for (int i = 0; i < this.size; i++) {
             if (listOfobjects[i].equals(o)) {
                 return i;
             }
@@ -184,10 +209,10 @@ public class PanfArrList<T> {
     /**Обрезает массив дня хранения элементов по размеру списка (количеству содержащихся в нем элементов).
      * При этом минимальный размер внутреннего массива не может быть меньше {@code DEFAULT_CAPACITY}*/
     public void trimToSize() {
-        if (listOfobjects.length > this.size && this.size > DEFAULT_CAPACITY) {
+        if (listOfobjects.length > this.size && this.size > 0) {
             listOfobjects = Arrays.copyOf(listOfobjects, this.size);
-        } else if (this.size < DEFAULT_CAPACITY) {
-            listOfobjects = Arrays.copyOf(listOfobjects, DEFAULT_CAPACITY);
+        } else if (this.size == 0) {
+            listOfobjects = EMPTY_LIST;
         }
     }
 
