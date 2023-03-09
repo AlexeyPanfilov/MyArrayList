@@ -229,16 +229,4 @@ public class PanfArrList<T> {
         sb = new StringBuilder(s).append("]");
         return sb.toString();
     }
-
-    /**Сервисный метод для тестирования некоторых методов, позже удалю после отладки*/
-    public String printList() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (Object o : listOfobjects) {
-            sb.append(o).append(", ");
-        }
-        String s = sb.toString().replaceAll(", $", "");
-        sb = new StringBuilder(s).append("]");
-        return sb.toString();
-    }
 }
