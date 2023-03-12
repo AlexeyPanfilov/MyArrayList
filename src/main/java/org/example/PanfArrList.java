@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @param <T> тип элемента, используемого в данной коллекции
  * @author Алексей Панфилов
- * @version 0.8
+ * @version 0.9
  */
 
 public class PanfArrList<T> {
@@ -36,7 +36,9 @@ public class PanfArrList<T> {
      */
     private Object[] listOfobjects;
 
-    /**Пустая коллекция для создания пустых коллекций и снижения вероятности появления NullPointerException*/
+    /**
+     * Пустая коллекция для создания пустых коллекций и снижения вероятности появления NullPointerException
+     */
     private static final Object[] EMPTY_LIST = {};
 
     /**
@@ -52,7 +54,9 @@ public class PanfArrList<T> {
         this.listOfobjects = (T[]) new Object[DEFAULT_CAPACITY];
     }
 
-    /**Создает пустой список с заданной вместимостью. При этом вместимость не может быть меньше {@code DEFAULT_CAPACITY}*/
+    /**
+     * Создает пустой список с заданной вместимостью. При этом вместимость не может быть меньше {@code DEFAULT_CAPACITY}
+     */
     public PanfArrList(int capacity) {
         if (capacity > 0) {
             this.listOfobjects = (T[]) new Object[capacity];
@@ -134,7 +138,9 @@ public class PanfArrList<T> {
         size = 0;
     }
 
-    /**Полностью удаляет список и возвращает пустую коллекцию*/
+    /**
+     * Полностью удаляет список и возвращает пустую коллекцию
+     */
     public void clearTotal() {
         listOfobjects = EMPTY_LIST;
     }
@@ -163,7 +169,8 @@ public class PanfArrList<T> {
         return previousElement;
     }
 
-    /**Добавляет элемент в список по индексу, при этом сдвигая остальные элементы вправо. Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе
+    /**
+     * Добавляет элемент в список по индексу, при этом сдвигая остальные элементы вправо. Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе
      */
     public void add(int index, T element) {
         if (index > this.size) {
@@ -182,7 +189,9 @@ public class PanfArrList<T> {
         }
     }
 
-    /**Удаляет элемент по индексу. При этом остальные элементы сдвигаются влево, если удаляется не последний элемент. Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе*/
+    /**
+     * Удаляет элемент по индексу. При этом остальные элементы сдвигаются влево, если удаляется не последний элемент. Может выкинуть IndexOutOfBoundsException или ArrayIndexOutOfDoundsException при некорректном индексе
+     */
     public T remove(int index) {
         T valueToRemove = this.get(index);
         listOfobjects[index] = null;
@@ -196,7 +205,9 @@ public class PanfArrList<T> {
         return valueToRemove;
     }
 
-    /**Возвращает индекс элемента по equals содержимого ячейки. В случае если такой объект в списке отсутствует, возвращает -1*/
+    /**
+     * Возвращает индекс элемента по equals содержимого ячейки. В случае если такой объект в списке отсутствует, возвращает -1
+     */
     public int indexOf(Object o) {
         for (int i = 0; i < this.size; i++) {
             if (listOfobjects[i].equals(o)) {
@@ -206,13 +217,54 @@ public class PanfArrList<T> {
         return -1;
     }
 
-    /**Обрезает массив дня хранения элементов по размеру списка (количеству содержащихся в нем элементов).
-     * При этом минимальный размер внутреннего массива не может быть меньше {@code DEFAULT_CAPACITY}*/
+    /**
+     * Обрезает массив дня хранения элементов по размеру списка (количеству содержащихся в нем элементов).
+     * При этом минимальный размер внутреннего массива не может быть меньше {@code DEFAULT_CAPACITY}
+     */
     public void trimToSize() {
         if (listOfobjects.length > this.size && this.size > 0) {
             listOfobjects = Arrays.copyOf(listOfobjects, this.size);
         } else if (this.size == 0) {
             listOfobjects = EMPTY_LIST;
+        }
+    }
+
+    /**Метод сортировки коллекции для внешнего вызова. Вызывает в себе внутренний метод сортировки, который при
+     * необходимости может быть изменен без изменения сигнатуры вызываемого из вне метода*/
+    public void sort() {
+        quickSort((T[]) listOfobjects, 0, this.size - 1);
+    }
+
+    /**
+     * Внутренний метод сортировки коллекции. Использует алгоритм быстрой сортировки. Недоступен для вызова из вне.
+     */
+    private void quickSort(T[] source, int leftBorder, int rightBorder) {
+        int leftMarker = leftBorder;
+        int rightMarker = rightBorder;
+        T pivot = (T) listOfobjects[(leftMarker + rightMarker) / 2];
+        do {
+            while (((Comparable)listOfobjects[leftMarker]).compareTo(pivot) < 0) {
+                leftMarker++;
+            }
+            // Двигаем правый маркер, пока элемент больше, чем pivot
+            while (((Comparable)listOfobjects[rightMarker]).compareTo(pivot) > 0) {
+                rightMarker--;
+            }
+            if (leftMarker <= rightMarker) {
+                if (leftMarker < rightMarker) {
+                    T tmp = (T) listOfobjects[leftMarker];
+                    listOfobjects[leftMarker] = listOfobjects[rightMarker];
+                    listOfobjects[rightMarker] = tmp;
+                }
+                leftMarker++;
+                rightMarker--;
+            }
+        } while (leftMarker <= rightMarker);
+        if (leftMarker < rightBorder) {
+            quickSort(source, leftMarker, rightBorder);
+        }
+        if (leftBorder < rightMarker) {
+            quickSort(source, leftBorder, rightMarker);
         }
     }
 

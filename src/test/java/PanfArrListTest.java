@@ -1,7 +1,10 @@
 import org.example.PanfArrList;
+import org.example.cars.Car;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 public class PanfArrListTest<T> {
 
@@ -140,5 +143,54 @@ public class PanfArrListTest<T> {
         int index = 1;
         Assertions.assertEquals(index, list.indexOf(ITEM + index));
         Assertions.assertEquals(-1, list.indexOf(""));
+    }
+
+    @Test
+    @DisplayName(value = "integer sort test")
+    void intSort() {
+        PanfArrList<Integer> intsList = new PanfArrList<>();
+        intsList.add(5);
+        intsList.add(4);
+        intsList.add(1);
+        intsList.add(8);
+        intsList.add(9);
+        intsList.add(3);
+        intsList.add(7);
+        intsList.add(2);
+        intsList.add(6);
+        intsList.sort();
+        int[] result = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        Assertions.assertEquals(intsList.toString(), Arrays.toString(result));
+        Assertions.assertEquals(intsList.get(0), 1);
+        Assertions.assertEquals(intsList.get(6), 7);
+    }
+    
+    @Test
+    @DisplayName(value = "strings sort")
+    void stringSort() {
+        PanfArrList<String> stringList = new PanfArrList<>();
+        stringList.add("One");
+        stringList.add("Two");
+        stringList.add("Cat");
+        stringList.add("Box");
+        stringList.sort();
+        String[] result = {"Box", "Cat", "One", "Two"};
+        Assertions.assertEquals(stringList.toString(), Arrays.toString(result));
+        Assertions.assertEquals(stringList.get(1), "Cat");
+    }
+
+    @Test
+    @DisplayName(value = "custom class sort")
+    void carsSort() {
+        PanfArrList<Car> cars = new PanfArrList<>();
+        cars.add(new Car("Ferrati", "Testarossa", 450));
+        cars.add((new Car("Audi", "A6", 250)));
+        cars.add(new Car("Citroen", "C5", 204));
+        cars.add(new Car("Lamborghini", "Diablo", 560));
+        cars.add(new Car("Citroen", "C5", 180));
+        cars.sort();
+        Assertions.assertEquals(cars.get(0).toString(), "Audi A6, 250 hp");
+        Assertions.assertEquals(cars.get(2).toString(), "Citroen C5, 204 hp");
+        Assertions.assertEquals(cars.get(3).toString(), "Ferrati Testarossa, 450 hp");
     }
 }
